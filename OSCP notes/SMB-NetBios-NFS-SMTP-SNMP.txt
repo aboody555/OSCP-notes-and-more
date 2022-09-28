@@ -1,0 +1,57 @@
+====================== SMB + NetBIOS =======================
+
+they are almost the same. Access the files on a remote server and modify them
+run on port :  445,139,138,137
+
+enumerate tools : 
+
+nmap
+
+smbclient : contact smb server and list all shared folders
+
+smbmap : can connect to smb server with given username and hashed password
+
+enum4linux 
+
+============================ NFS ===========================
+
+Access the files on remoute server and mount it locally.copy the files to localhost
+run on port : 111
+
+enumerate tools :
+
+nmap ...........when we see rpcbind that is the NFS service
+
+rpcinfo ..........then using showmount and all the files in there i can mount them to my pc
+
+=========================== SMTP ============================
+
+simple mail transfer protocol. if the open-relay vuln exits then i can send emails using compay name
+run on port : 25
+i can netcat to that port if successed if can use VRFY to verify email if exist
+
+enumerate tools :
+
+nmap
+
+my own script using python
+
+smtp-user-enum ......... very useful smtp enumirate tool
+
+=========================== SNMP ============================
+
+manage all of the network
+hard to cofigure so many times admins leave it defalut password public
+run on port : 161
+
+enumerate tools :
+
+nmap
+
+onesixtyone
+
+snmpwalk
+
+snmpset
+
+

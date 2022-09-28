@@ -1,0 +1,75 @@
+===================================                                        ====================================
+=================================== Web Application Techniques Enumeration ====================================
+===================================                                        ====================================
+
+
+===== programing languages =====
+
+Wappalyzer  ......add=on to firefox
+inspecting URLs
+whatweb -v  ......kali tool
+error
+
+===== web server software (Apache,Ngix,IIS) =====
+
+Wappalyzer 
+whatweb
+error
+
+===== database software (Mysql-MariaDB-MogoDB-Oracle-SQLserver) =====
+
+wappalayzer
+error
+
+===== operation system =====
+
+wappalyzer
+NSE
+
+
+
+===================================                         ====================================
+=================================== Web Application fuzzing ====================================
+===================================                         ====================================
+
+===== Fuzz directories and files ======
+
+dirb - gobuster - dirsearch - ffuf - wfuzz
+
+ex : wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt --hc 404,301,302 http://www.vulnweb.com/FUZZ
+
+^.^ note for files : we should write in the end FUZZ.php,zip,bak,db,tx 
+
+
+
+===================================                                      ====================================
+=================================== Web Application test vulnerabilities ====================================
+===================================                                      ====================================
+
+nikto
+
+nessus
+
+Acunetix ......similar to nessus
+
+netsparker
+
+burp and zap
+
+===========================================================================
+
+wfuzz for subdomains:
+
+wfuzz -c -f sub-fighter -w wordlist.txt -u 'http://thetoppers.htb' -H "Host: FUZZ.thetoppers.htb" --hw 1036
+
+	where --hw is the size of word to exclude
+
+
+
+
+gobuster for subdomains:
+
+gobuster vhost -u http://thetoppers.htb -w wordlist.txt
+
+
+

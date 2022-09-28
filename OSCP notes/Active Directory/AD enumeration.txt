@@ -1,0 +1,111 @@
+
+
+net user    -----> all the local users	
+
+net user /domain     -----> all the domain users
+
+net user <user> /domain  
+
+net group /domain   
+													
+===========================================================================================================
+
+		{this Script for listing all the information about users we just try different filters}
+
+
+
+$domainObj = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
+
+$PDC = ($domainObj.PdcRoleOwner).Name
+
+$SerachString = "LDAP://"
+
+$SearchString += $PDC + "/"
+
+$DistinguishedName = "DC=$($domainObj.Name.Replace('.',',DC='))"
+
+$SearchString += $DistinguishedName
+
+$Searcher = New-Object System.DirectoryServices.DirectorySearcher([ADSI]$SearchString)
+
+$objDomain = New-Object System.DirectoryServices.DirectoryEntry
+
+$Searcher.SearchRoot = $objDomain
+
+$Searcher.filter = "samAccountType=805306368"    ------------>  ;"name=spider_admin"
+							        ;"memberof= CN=spiders OU= ...."
+$Result = $Searcher.FindAll()				   
+
+Foreach($obj in $Result)
+{	
+	Foreach($prop in $obj.properties)
+	{
+		$prop			
+				}
+	Write-Host "---------------------------"
+
+}
+
+
+
+================================================
+
+to find all the groups and any group members we just change for loop and the filter, fist we list all the groups:
+.
+.
+$Searcher.filter="objectClass=Group"
+.
+.
+foreach($obj in $Result)
+
+	{$obj.Properties.name}
+
+-----------------------------------------------------------------
+
+now to find members of a group we change the filter and for loop :
+.
+.
+$Searcher.filter="name=group_name"
+.
+.
+foreach($obj in $Result)
+
+	{$obj.Properties.member}
+
+-----------------------------------------------------------------
+
+enumeration through the service name we just change filter:
+.
+.
+$Searcher.filter="serviceprincipalname=*http*"
+.
+.
+
+
+------------------------------------------------------------------
+
+
+===================================================================================================================
+
+to find all current logged on users on a computer:
+
+first we download powerview script and move it to the target
+
+then write the following :
+
+	Import-Module .\PowerView.ps1
+
+	Get-NetLoggedon -ComputerName <ComputerName>
+
+and we can get all the active sessions on a computer by the following:
+
+	Get-NetSession -ComputerName <ComputerName>
+
+and most likely we get the same result
+
+
+
+ 
+
+
+

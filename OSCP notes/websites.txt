@@ -1,0 +1,68 @@
+================ websites recon ======================
+
+ViewDnsinfo.com : is the website on a private server or a compined server
+
+DNSdumpster.com : subdomains and full map
+
+Agiliance.com : view all partners, third party companies, acquisitions, investors, emails, CEO .....
+
+web.archive.org : archive for all websites even deleted ones
+
+securityheaders.com : scan http headers and report any missing configuration
+
+ssllabs.com : identify SSL related vulerabilities
+
+shodan.io   ...... its also view CVS and vuln
+censys.io
+
+pastebin : database leaks, accounts ...
+
+searchdns.netcraft.com  .......similar to whois
+ 
+ === whois enumeration ===
+
+http://who.is
+http://whois.domaintools.com
+http://bgp.he.net/  ............also give me CIDR and ASN number
+http://networking.ringofsaturn.com/Tools/whois.php
+http://www.networksolutions.com/whois/index.jsp
+http://www.betterwhois.com/
+ ========================= 
+
+ === github manula search===
+
+"company" password
+"company" secret
+"company" credentials
+"company" token
+"company" config
+"company" key
+"company" pass
+"company" login
+"company" ftp
+"company" pwd
+"company" security_credentials
+"company" connectionstring
+"company" JDBC , LDAB ,DATA Base
+"company" ssh_auth_password
+"company" send_key/keys
+
+ ============================
+
+================ USER information gathering ==================
+
+email-format.com
+
+pipl.com 
+
+peoplefinders.com : for emails
+
+haveibeenpwned.com
+
+social-searcher.com : general search engine for social media sites
+
+https://digi.ninja/projects/twofi.php : scan twitter user and generate a personalized wordlist
+
+github.com/initstring/linkedin2username : generate username lists based on linkedin data
+
+ 

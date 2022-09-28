@@ -1,0 +1,6 @@
+
+==================tools for automate RCE through LFI=========================
+
+psycho-path
+
+LFIsuite

